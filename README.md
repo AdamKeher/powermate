@@ -182,3 +182,8 @@ Powerpal's firmware version (shown on the Device tab).
 PowerMate is provided as-is, without warranty. Costs, projections and plan comparisons are
 estimates from your readings and the tariff details you enter or download; check with your
 retailer before making decisions based on them.
+
+## License
+
+PowerMate is released under the [MIT License](LICENSE). The Bluetooth protocol details come
+from [pento/powerpal-esphome](https://github.com/pento/powerpal-esphome), also MIT licensed.

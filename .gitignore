@@ -1,15 +1,46 @@
-*.iml
+# Gradle and Kotlin
 .gradle/
 .kotlin/
-/local.properties
-/.idea/
-.DS_Store
-/build/
-/app/build/
+build/
 /captures/
 .externalNativeBuild/
 .cxx/
+
+# Build outputs
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+output-metadata.json
+
+# Machine-specific settings (SDK path)
+/local.properties
+
+# Signing: never commit keys or their passwords (see keystore.properties.example)
 *.keystore
 *.jks
 /keystore.properties
+
+# Android Studio / IntelliJ
+/.idea/
+*.iml
+.navigation/
+
+# VS Code, including the files its Java extension generates
+.vscode/
+.project
+.classpath
+.settings/
+bin/
+
+# Python (tools/)
 __pycache__/
+*.pyc
+.venv/
+
+# Logs, heap dumps and OS clutter
+*.log
+*.hprof
+.DS_Store
+Thumbs.db
