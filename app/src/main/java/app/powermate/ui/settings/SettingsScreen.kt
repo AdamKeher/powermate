@@ -4,7 +4,16 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
+import app.powermate.R
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -250,6 +259,7 @@ fun SettingsScreen(onEditTariff: () -> Unit, onComparePlans: () -> Unit, onAlert
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                MadeBy()
             }
         }
     }
@@ -278,6 +288,33 @@ fun SettingsScreen(onEditTariff: () -> Unit, onComparePlans: () -> Unit, onAlert
             },
             dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
         )
+    }
+}
+
+private const val HOMEPAGE = "https://aksevenfour.com/powermate"
+
+/** The developer's badge and the app's homepage, which opens in the browser. */
+@Composable
+private fun MadeBy() {
+    val uriHandler = LocalUriHandler.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { runCatching { uriHandler.openUri(HOMEPAGE) } }
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painterResource(R.drawable.logo_aksevenfour),
+            contentDescription = "aksevenfour",
+            modifier = Modifier.height(40.dp).aspectRatio(190.47f / 100f),
+        )
+        Spacer(Modifier.width(12.dp))
+        Column {
+            Text("Made by aksevenfour", style = MaterialTheme.typography.bodyMedium)
+            Text(HOMEPAGE.removePrefix("https://"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+        }
     }
 }
 

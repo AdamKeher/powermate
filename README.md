@@ -5,6 +5,8 @@ app is no longer maintained; PowerMate keeps the hardware useful by talking to t
 directly over Bluetooth and keeping your readings on your phone. There's no account to create
 and no PowerMate server.
 
+Homepage: [aksevenfour.com/powermate](https://aksevenfour.com/powermate)
+
 > PowerMate is not made by, endorsed by or affiliated with Powerpal. "Powerpal" is used only to
 > say which device the app works with.
 
