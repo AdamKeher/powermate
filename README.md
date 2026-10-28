@@ -1,3 +1,5 @@
+<img src="docs/logo.svg" align="right" width="112" alt="PowerMate logo">
+
 # PowerMate
 
 A free, independent Android app for **Powerpal** Bluetooth energy monitors. The official Powerpal
