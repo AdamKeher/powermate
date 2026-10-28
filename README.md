@@ -7,7 +7,9 @@ app is no longer maintained; PowerMate keeps the hardware useful by talking to t
 directly over Bluetooth and keeping your readings on your phone. There's no account to create
 and no PowerMate server.
 
-Homepage: [aksevenfour.com/powermate](https://aksevenfour.com/powermate)
+**Now in beta on Google Play.** [Join the beta](#join-the-beta) to get the app free today and
+help bring it to every Powerpal owner. Homepage:
+[aksevenfour.com/powermate](https://aksevenfour.com/powermate)
 
 > PowerMate is not made by, endorsed by or affiliated with Powerpal. "Powerpal" is used only to
 > say which device the app works with.
@@ -92,10 +94,26 @@ Price and plan features currently cover Victoria only. Everything else works any
   original app).
 - Your meter's rate in impulses per kWh, printed on the meter (usually 1000).
 
+## Join the beta
+
+PowerMate is in closed testing on Google Play. Before Google will list it for everyone, at least
+12 testers need to stay in the test for 14 days in a row.
+
+1. Sign in with the Google account you use on your Android phone, then join the
+   [powermate-testers](https://groups.google.com/g/powermate-testers) group.
+2. With the same account, open the
+   [PowerMate testing page](https://play.google.com/apps/testing/com.aksevenfour.powermate) and
+   tap **Become a tester**.
+3. Install [PowerMate from Google Play](https://play.google.com/store/apps/details?id=com.aksevenfour.powermate).
+   If it says the item isn't found, give it an hour and try again.
+
+Please stay in the test for the full 14 days and don't tap **Leave the program**. You don't need
+a Powerpal to count as a tester. Problems or ideas? [Open an issue](https://github.com/AdamKeher/powermate/issues).
+
 ## Getting started
 
 1. Close or uninstall the original Powerpal app. A Powerpal talks to only one app at a time.
-2. Install PowerMate (see [Building](#building); there are no published builds yet).
+2. Install PowerMate: [join the beta](#join-the-beta), or [build it yourself](#building).
 3. Open PowerMate, tap **Find my Powerpal**, pick your device and enter its pairing code.
 4. Enter your electricity plan under **Settings → Electricity plan → Edit plan**, or find it
    with **Compare plans for my usage** and tap **Use as my plan in PowerMate**.
