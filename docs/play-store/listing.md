@@ -56,7 +56,7 @@ PowerMate is independent and isn't made by, endorsed by or affiliated with Power
 
 - **App category:** House & Home
 - **Tags:** pick the closest to energy monitoring and utilities that Play offers.
-- **Contact email (shown publicly):** [CONTACT EMAIL]
+- **Contact email (shown publicly):** adamkeher@gmail.com
 - **Website:** https://aksevenfour.com/powermate
 - **Privacy policy URL:** where `PRIVACY.md` is published (for example its GitHub page)
 

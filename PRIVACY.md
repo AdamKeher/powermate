@@ -63,4 +63,4 @@ never start collecting your data without saying so here first.
 
 ## Contact
 
-Questions about this policy: [CONTACT EMAIL]
+Questions about this policy: [adamkeher@gmail.com](mailto:adamkeher@gmail.com)

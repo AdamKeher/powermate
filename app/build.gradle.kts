@@ -22,8 +22,8 @@ android {
         applicationId = "com.aksevenfour.powermate"
         minSdk = 26
         targetSdk = 36
-        versionCode = 24
-        versionName = "0.24.0"
+        versionCode = 25
+        versionName = "1.0.0"
     }
 
     signingConfigs {
