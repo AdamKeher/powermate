@@ -143,8 +143,9 @@ def resources():
 
 def store_images():
     os.makedirs(STORE, exist_ok=True)
-    # Play icon: full-bleed square; Play rounds the corners itself.
-    render(512, 512 * 0.56).convert("RGB").save(os.path.join(STORE, "icon-512.png"), optimize=True)
+    # Play icon: full-bleed square; Play rounds the corners itself. Play wants a 32-bit PNG, so keep
+    # the (fully opaque) alpha channel.
+    render(512, 512 * 0.56).save(os.path.join(STORE, "icon-512.png"), optimize=True)
     print("wrote docs/play-store/icon-512.png")
     # Feature graphic: mark on the left, name and line on the right.
     w, h = 1024, 500
