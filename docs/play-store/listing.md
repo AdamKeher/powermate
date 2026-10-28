@@ -71,4 +71,4 @@ PowerMate is independent and isn't made by, endorsed by or affiliated with Power
 The icon and feature graphic come from `tools/make_logo.py`. The screenshots are framed with the
 logo and a caption by `tools/frame_screenshots.py`, from full-resolution emulator captures. They
 show a real household's history. The Live screen's power reading is simulated with the debug
-build's mock connection (`adb shell am start -n app.powermate/.ui.MainActivity --ez mock_live true`).
+build's mock connection (`adb shell am start -n com.aksevenfour.powermate/.ui.MainActivity --ez mock_live true`).

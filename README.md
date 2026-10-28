@@ -138,7 +138,7 @@ key.
 
 ## Project layout
 
-Source lives under `app/src/main/java/app/powermate/`.
+Source lives under `app/src/main/java/com/aksevenfour/powermate/`.
 
 | Path | What |
 |---|---|

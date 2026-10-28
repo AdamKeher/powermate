@@ -88,7 +88,7 @@ News app: no. Government app: no. Financial features: none. Health: none.
    `app/build/outputs/bundle/release/app-release.aab`.
 2. **Play App Signing.** Accept it when creating the app. Google holds the app signing key, and
    a lost upload key can be reset through Play support.
-3. **Package name** `app.powermate` is permanent once uploaded.
+3. **Package name** `com.aksevenfour.powermate` is permanent once uploaded.
 4. **Testing before production.** Personal developer accounts created after 13 November 2023
    must run a closed test with at least 12 testers opted in for 14 days in a row before applying
    for production access. Organisation accounts are exempt.
