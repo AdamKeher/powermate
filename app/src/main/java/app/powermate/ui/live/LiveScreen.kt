@@ -137,7 +137,7 @@ fun LiveScreen() {
         }
     }
 
-    ScreenScaffold("PowerMate", actions = { LinkStatusLabel(state.link) }) { padding ->
+    ScreenScaffold("PowerMate", logo = true, actions = { LinkStatusLabel(state.link) }) { padding ->
         Column(
             Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),

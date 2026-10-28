@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
-import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -66,6 +65,7 @@ import app.powermate.ble.PowerpalManager
 import app.powermate.ble.PowerpalProtocol
 import app.powermate.ble.isBluetoothOn
 import app.powermate.data.PairedDevice
+import app.powermate.ui.components.PowerMateLogo
 import app.powermate.ui.components.ScreenScaffold
 import app.powermate.ui.components.appContainer
 import kotlinx.coroutines.CancellationException
@@ -112,7 +112,7 @@ private fun WelcomeScreen(onContinue: () -> Unit) {
             Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Icon(Icons.Filled.Bolt, contentDescription = null, Modifier.size(56.dp), tint = MaterialTheme.colorScheme.primary)
+            PowerMateLogo(Modifier.size(72.dp))
             Text("PowerMate", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text(
                 "A free, independent app for Powerpal energy monitors. It talks to your Powerpal directly over " +

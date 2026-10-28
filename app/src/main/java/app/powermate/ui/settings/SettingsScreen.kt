@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -46,6 +47,7 @@ import app.powermate.ui.Format
 import app.powermate.ui.components.InfoRow
 import app.powermate.ui.components.RateSwatch
 import app.powermate.ui.components.rateColor
+import app.powermate.ui.components.PowerMateLogo
 import app.powermate.ui.components.ScreenScaffold
 import app.powermate.ui.components.SectionCard
 import app.powermate.ui.components.TariffText
@@ -236,7 +238,11 @@ fun SettingsScreen(onEditTariff: () -> Unit, onComparePlans: () -> Unit, onAlert
             }
 
             SectionCard(title = "About") {
-                Text("PowerMate ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodyMedium)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    PowerMateLogo(Modifier.size(40.dp))
+                    Spacer(Modifier.width(12.dp))
+                    Text("PowerMate ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.titleSmall)
+                }
                 Text(
                     "Free, independent software that keeps Powerpal monitors working after the official app was " +
                         "abandoned. Not made by or affiliated with Powerpal. Bluetooth protocol thanks to the " +

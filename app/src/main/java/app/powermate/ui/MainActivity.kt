@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -33,6 +34,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import app.powermate.BuildConfig
+import app.powermate.PowerMateApp
 import app.powermate.data.AppSettings
 import app.powermate.data.PairedDevice
 import app.powermate.ui.components.appContainer
@@ -50,7 +53,13 @@ import app.powermate.ui.usage.UsageScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
+        // Debug builds can fake a connected Powerpal for screenshots and UI work:
+        // adb shell am start -n app.powermate/.ui.MainActivity --ez mock_live true
+        if (BuildConfig.DEBUG && intent.getBooleanExtra("mock_live", false)) {
+            (application as PowerMateApp).container.mockLive = true
+        }
         enableEdgeToEdge()
         setContent {
             PowerMateTheme { PowerMateRoot() }

@@ -104,11 +104,18 @@ class AppContainer(context: Context) {
     private var liveJob: Job? = null
     private var lingerJob: Job? = null
 
+    /** Debug builds only: simulate the live connection instead of using Bluetooth (see MainActivity). */
+    var mockLive = false
+
     fun acquireLive(owner: String) {
         lingerJob?.cancel()
         lingerJob = null
         liveOwners += owner
-        if (liveJob?.isActive != true) liveJob = scope.launch { powerpal.runLive() }
+        if (liveJob?.isActive != true) {
+            liveJob = scope.launch {
+                if (mockLive) powerpal.runMockLive(settings.current().pulsesPerKwh) else powerpal.runLive()
+            }
+        }
     }
 
     /** With [linger], the connection survives briefly so a quick app switch doesn't mean reconnecting. */

@@ -2,4 +2,11 @@
     <style name="Theme.PowerMate" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
     </style>
+
+    <!-- Launch theme: the logo on its charcoal tile until the first frame is drawn. -->
+    <style name="Theme.PowerMate.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.PowerMate</item>
+    </style>
 </resources>

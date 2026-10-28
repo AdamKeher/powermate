@@ -36,6 +36,8 @@ import java.time.Instant
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sin
+import kotlin.random.Random
 
 enum class LinkStatus {
     IDLE,
@@ -515,6 +517,43 @@ class PowerpalManager(
         val report = LivePower(intervalMs, now)
         _live.value = report
         _liveHistory.update { history -> history.dropWhile { it.receivedAtMillis < now - LIVE_HISTORY_MS } + report }
+    }
+
+    /**
+     * Debug builds only: pretends a Powerpal is connected and reports a plausible household load
+     * (a base load, a kettle ten minutes ago, an oven now), so the live screens can be worked on and
+     * photographed without the device. The last [LIVE_HISTORY_MS] is filled in for the trend.
+     */
+    suspend fun runMockLive(pulsesPerKwh: Double) {
+        val random = Random(7)
+        fun load(minutesAgo: Double): Double {
+            val base = 450 + 80 * sin(minutesAgo)
+            val kettle = if (minutesAgo in 9.0..12.0) 2_200.0 else 0.0
+            val oven = if (minutesAgo < 5.0) 1_700.0 else 0.0
+            return base + kettle + oven + random.nextDouble(-60.0, 60.0)
+        }
+        fun interval(watts: Double) = (3.6e9 / (pulsesPerKwh * watts)).toLong().coerceAtLeast(1)
+        try {
+            _link.value = LinkState(LinkStatus.LIVE)
+            val start = System.currentTimeMillis()
+            val history = mutableListOf<LivePower>()
+            var t = start - LIVE_HISTORY_MS
+            while (t < start) {
+                val gap = interval(load((start - t) / 60_000.0))
+                history += LivePower(gap, t)
+                t += gap
+            }
+            _liveHistory.value = history
+            while (true) {
+                val report = LivePower(interval(load(0.0)), System.currentTimeMillis())
+                _live.value = report
+                _liveHistory.update { h -> h.dropWhile { it.receivedAtMillis < report.receivedAtMillis - LIVE_HISTORY_MS } + report }
+                delay(report.intervalMs)
+            }
+        } finally {
+            _live.value = null
+            _link.value = LinkState()
+        }
     }
 
     /** Runs an optional read, treating a refusal by the device as "not available". */

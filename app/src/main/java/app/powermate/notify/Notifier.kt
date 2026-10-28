@@ -67,7 +67,7 @@ object Notifier {
     fun post(context: Context, channel: String, id: Int, title: String, text: String) {
         if (!permitted(context)) return
         val notification = NotificationCompat.Builder(context, channel)
-            .setSmallIcon(R.drawable.ic_stat_bolt)
+            .setSmallIcon(R.drawable.ic_stat_logo)
             .setContentTitle(title)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
@@ -89,7 +89,7 @@ object Notifier {
     /** The ongoing notification shown while the background live connection runs. */
     fun live(context: Context, text: String): Notification =
         NotificationCompat.Builder(context, CHANNEL_LIVE)
-            .setSmallIcon(R.drawable.ic_stat_bolt)
+            .setSmallIcon(R.drawable.ic_stat_logo)
             .setContentTitle("PowerMate")
             .setContentText(text)
             .setContentIntent(openApp(context))

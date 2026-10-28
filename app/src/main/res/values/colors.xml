@@ -1,4 +1,5 @@
 <resources>
     <color name="window_background">#FFF5FBFA</color>
-    <color name="ic_launcher_background">#FF00575B</color>
+    <!-- The logo's charcoal tile, behind the launcher icon and the splash screen. -->
+    <color name="ic_launcher_background">#FF231F20</color>
 </resources>

@@ -12,16 +12,19 @@ and no PowerMate server.
 
 <table>
   <tr>
-    <td align="center" width="25%"><img src="docs/screenshots/energy-clock-kwh.png" width="200" alt="Energy clock: energy per quarter hour, coloured by rate"><br><sub>Energy clock: energy per quarter hour, coloured by rate</sub></td>
-    <td align="center" width="25%"><img src="docs/screenshots/energy-clock-kw.png" width="200" alt="Energy clock: five-minute power, with the day's peak"><br><sub>Energy clock: five-minute power, with the day's peak</sub></td>
-    <td align="center" width="25%"><img src="docs/screenshots/energy-clock-cost.png" width="200" alt="Energy clock: what each quarter hour cost"><br><sub>Energy clock: what each quarter hour cost</sub></td>
-    <td align="center" width="25%"><img src="docs/screenshots/month-chart.png" width="200" alt="A month of daily use, split by rate"><br><sub>A month of daily use, split by rate</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/live.png" width="240" alt="Live power and the last 15 minutes"><br><sub>Live power and the last 15 minutes</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/energy-clock-kwh.png" width="240" alt="Energy clock: energy per quarter hour, coloured by rate"><br><sub>Energy clock: energy per quarter hour, coloured by rate</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/energy-clock-kw.png" width="240" alt="Energy clock: five-minute power, with the day's peak"><br><sub>Energy clock: five-minute power, with the day's peak</sub></td>
   </tr>
   <tr>
-    <td align="center" width="25%"><img src="docs/screenshots/week-power.png" width="200" alt="A week's power as a line graph"><br><sub>A week's power as a line graph</sub></td>
-    <td align="center" width="25%"><img src="docs/screenshots/prices.png" width="200" alt="Wholesale prices, renewables share and forecast"><br><sub>Wholesale prices, renewables share and forecast</sub></td>
-    <td align="center" width="25%"><img src="docs/screenshots/electricity-plan.png" width="200" alt="Time-of-use plan editor"><br><sub>Time-of-use plan editor</sub></td>
-    <td align="center" width="25%"><img src="docs/screenshots/compare-plans.png" width="200" alt="Every plan at a postcode, priced against your usage"><br><sub>Every plan at a postcode, priced against your usage</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/energy-clock-cost.png" width="240" alt="Energy clock: what each quarter hour cost"><br><sub>Energy clock: what each quarter hour cost</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/month-chart.png" width="240" alt="A month of daily use, split by rate"><br><sub>A month of daily use, split by rate</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/week-power.png" width="240" alt="A week's power as a line graph"><br><sub>A week's power as a line graph</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="docs/screenshots/prices.png" width="240" alt="Wholesale prices, renewables share and forecast"><br><sub>Wholesale prices, renewables share and forecast</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/electricity-plan.png" width="240" alt="Time-of-use plan editor"><br><sub>Time-of-use plan editor</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/compare-plans.png" width="240" alt="Every plan at a postcode, priced against your usage"><br><sub>Every plan at a postcode, priced against your usage</sub></td>
   </tr>
 </table>
 

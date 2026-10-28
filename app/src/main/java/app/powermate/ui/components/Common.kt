@@ -1,5 +1,6 @@
 package app.powermate.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -38,11 +39,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.powermate.AppContainer
+import app.powermate.R
 import app.powermate.PowerMateApp
 import app.powermate.ble.LinkState
 import app.powermate.ble.LinkStatus
@@ -59,6 +62,8 @@ fun ScreenScaffold(
     /** Null for a tab whose name the bottom bar already shows: no top bar at all. */
     title: String?,
     onBack: (() -> Unit)? = null,
+    /** Show the PowerMate badge before the title, for the app's home screen. */
+    logo: Boolean = false,
     snackbarHostState: SnackbarHostState? = null,
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
@@ -67,7 +72,15 @@ fun ScreenScaffold(
         topBar = {
             if (title == null) return@Scaffold
             TopAppBar(
-                title = { Text(title) },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (logo) {
+                            PowerMateLogo(Modifier.size(32.dp))
+                            Spacer(Modifier.width(12.dp))
+                        }
+                        Text(title)
+                    }
+                },
                 navigationIcon = {
                     if (onBack != null) {
                         IconButton(onClick = onBack) {
@@ -81,6 +94,12 @@ fun ScreenScaffold(
         snackbarHost = { snackbarHostState?.let { SnackbarHost(it) } },
         content = content,
     )
+}
+
+/** The PowerMate mark on its charcoal tile; reads on light and dark backgrounds alike. */
+@Composable
+fun PowerMateLogo(modifier: Modifier = Modifier) {
+    Image(painterResource(R.drawable.logo_badge), contentDescription = "PowerMate", modifier = modifier)
 }
 
 /** A small pill switch for card headers, where a full segmented button takes too much room. */
