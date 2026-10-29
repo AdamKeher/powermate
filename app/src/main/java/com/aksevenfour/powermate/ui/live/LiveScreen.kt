@@ -251,10 +251,12 @@ private fun HistoryCard(state: LiveUiState, onDownload: (Boolean) -> Unit, onDis
 private fun LivePowerCard(state: LiveUiState, now: Long) {
     val live = state.live
     val connected = state.link.status == LinkStatus.LIVE
-    // Only decay while connected; offline, show the last report as it was.
-    val watts = live?.let {
-        val age = if (connected) now - it.receivedAtMillis else 0L
-        PowerpalProtocol.liveWatts(it.intervalMs, age, state.settings.pulsesPerKwh)
+    // Only decay while connected; offline, show the average as of the last report.
+    val listeningSince = state.link.pulsesSinceMillis.takeIf { connected }
+    val watts = when {
+        listeningSince != null -> PowerpalProtocol.averageWatts(state.history, now, listeningSince, state.settings.pulsesPerKwh)
+        live != null -> PowerpalProtocol.averageWatts(state.history, live.receivedAtMillis, live.receivedAtMillis, state.settings.pulsesPerKwh)
+        else -> null
     }
     val tariff = state.settings.tariff
     val minute = now / 60_000
@@ -278,7 +280,7 @@ private fun LivePowerCard(state: LiveUiState, now: Long) {
                 Text(LiveMood.level(moodWatts).label, style = MaterialTheme.typography.labelLarge, color = onMood)
             }
             Box(Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) {
-                MeterPulse(live?.intervalMs?.takeIf { connected }, Modifier.size(150.dp), color = onMood)
+                MeterPulse(live?.intervalMs?.takeIf { connected && watts != 0.0 }, Modifier.size(150.dp), color = onMood)
                 if (watts == null) {
                     Text(
                         if (connected) "Waiting for the next meter pulse…" else "Live power appears once connected",
@@ -311,7 +313,7 @@ private fun LivePowerCard(state: LiveUiState, now: Long) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = onMood,
                 )
-                if (!connected) {
+                if (!connected && live != null) {
                     Text("Last seen ${Format.ago(live.receivedAtMillis, now)}", style = MaterialTheme.typography.bodySmall, color = onMood)
                 }
             }

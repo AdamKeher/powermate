@@ -19,6 +19,17 @@ import java.util.Locale
 import kotlin.math.min
 import kotlin.math.roundToInt
 
+/** The outcome of asking Powerpal's cloud to resend a pairing code to the device's registered owner. */
+sealed interface PairingCodeRecovery {
+    /** The cloud has sent the code to the owner's registered email and mobile. */
+    data object Sent : PairingCodeRecovery
+
+    /** The device isn't registered, so there's no owner to send the code to. */
+    data object NotRegistered : PairingCodeRecovery
+
+    data class Failed(val message: String) : PairingCodeRecovery
+}
+
 /** Moving readings in and out of the app: CSV export, and an import from Powerpal's cloud. */
 class DataTools(
     private val context: Context,
@@ -91,6 +102,37 @@ class DataTools(
         imported
     }
 
+    /**
+     * Asks Powerpal's cloud to send a device's pairing code to the owner who registered it, the way
+     * the official app's "I can't find my pairing code" link does. The code only ever goes to the
+     * registered email and mobile, never back to us, so this can't be used to read someone else's code.
+     * [serial] is the 8-char hex from the Bluetooth name (see [PowerpalProtocol.serialFromName]).
+     */
+    suspend fun recoverPairingCode(serial: String): PairingCodeRecovery = withContext(Dispatchers.IO) {
+        val id = URLEncoder.encode(serial.trim(), "UTF-8")
+        val connection = URL("$DEVICES_BASE/energy_bridges/$id/pairing_code_recovery").openConnection() as HttpURLConnection
+        try {
+            connection.requestMethod = "POST"
+            connection.connectTimeout = 15_000
+            connection.readTimeout = 30_000
+            // The server requires a Content-Length even with no body (411 otherwise); send an empty one.
+            connection.doOutput = true
+            connection.setFixedLengthStreamingMode(0)
+            connection.outputStream.close()
+            val code = connection.responseCode
+            log.add("Pairing code recovery for $serial returned HTTP $code")
+            when {
+                code in 200..299 -> PairingCodeRecovery.Sent
+                code == 404 -> PairingCodeRecovery.NotRegistered
+                else -> PairingCodeRecovery.Failed("Powerpal's cloud returned HTTP $code")
+            }
+        } catch (e: IOException) {
+            PairingCodeRecovery.Failed(e.message ?: "Couldn't reach Powerpal's cloud")
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     private fun get(url: String, apiKey: String): String {
         val connection = URL(url).openConnection() as HttpURLConnection
         try {
@@ -116,6 +158,7 @@ class DataTools(
     private companion object {
         const val PAGE_SIZE = 5_000
         const val CLOUD_BASE = "https://readings.powerpal.net/api/v1"
+        const val DEVICES_BASE = "https://devices.powerpal.net/api/v1"
         /** 30 days of minute rows (43,200) per request, under the API's 50,000-row limit. */
         const val CLOUD_CHUNK_SECONDS = 30 * 86_400L
     }

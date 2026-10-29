@@ -95,6 +95,45 @@ class PowerpalProtocolTest {
     }
 
     @Test
+    fun `live watts hold through gaps between reports under heavy load`() {
+        // At 12 kW the Powerpal reported a 300 ms interval only every 0.4–2.7 s.
+        assertEquals(12_000.0, PowerpalProtocol.liveWatts(300, 2_700, 1000.0), 0.001)
+        assertEquals(12_000.0, PowerpalProtocol.liveWatts(300, 5_000, 1000.0), 0.001)
+        // Silent for longer than that, the load must have dropped.
+        assertEquals(360.0, PowerpalProtocol.liveWatts(300, 10_000, 1000.0), 0.001)
+    }
+
+    @Test
+    fun `average watts smooth uneven pulses`() {
+        // Every pulse reported, alternating 1.0 s and 1.5 s apart: 2 Wh every 2.5 s.
+        var t = 0L
+        val reports = List(20) { i -> (if (i % 2 == 0) 1_000L else 1_500L).let { t += it; LivePower(it, t) } }
+        assertEquals(2_880.0, PowerpalProtocol.averageWatts(reports, t, 0, 1000.0)!!, 0.001)
+    }
+
+    @Test
+    fun `average watts hold between sparse reports and fall once they stop`() {
+        // 12 kW, reported every 2.5 s, the last at 10 s.
+        val reports = (0..4).map { LivePower(300, it * 2_500L) }
+        assertEquals(12_000.0, PowerpalProtocol.averageWatts(reports, 12_000, 0, 1000.0)!!, 0.001)
+        // 5 s of the window at 12 kW, then 10 s silent: at most one pulse (1 Wh) since.
+        assertEquals((5 * 12_000.0 + 10 * 360.0) / 15, PowerpalProtocol.averageWatts(reports, 20_000, 0, 1000.0)!!, 0.001)
+        assertEquals(180.0, PowerpalProtocol.averageWatts(reports, 30_000, 0, 1000.0)!!, 0.001)
+        // A minute without a pulse: solar or a battery is covering the house.
+        assertEquals(0.0, PowerpalProtocol.averageWatts(reports, 70_000, 0, 1000.0)!!, 0.0)
+    }
+
+    @Test
+    fun `average watts read zero after a minute listening without a pulse`() {
+        assertNull(PowerpalProtocol.averageWatts(emptyList(), 59_000, 0, 1000.0))
+        assertEquals(0.0, PowerpalProtocol.averageWatts(emptyList(), 60_000, 0, 1000.0)!!, 0.0)
+        // Quiet before listening started proves nothing: 30 s listening caps it at 120 W, not 0.
+        assertEquals(120.0, PowerpalProtocol.averageWatts(listOf(LivePower(300, 0)), 130_000, 100_000, 1000.0)!!, 0.001)
+        // A slow steady load (40 W, a pulse every 90 s) isn't cut to 0 between its pulses.
+        assertEquals(40.0, PowerpalProtocol.averageWatts(listOf(LivePower(90_000, 0)), 80_000, 0, 1000.0)!!, 0.001)
+    }
+
+    @Test
     fun `api key formats as a uuid`() {
         val key = PowerpalProtocol.formatApiKey(ByteArray(16) { it.toByte() })
         assertEquals("00010203-0405-0607-0809-0a0b0c0d0e0f", key)

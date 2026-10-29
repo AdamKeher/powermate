@@ -44,10 +44,11 @@ class LiveMonitorService : Service() {
             while (true) {
                 val settings = container.settings.settings.first()
                 val link = container.powerpal.link.value
-                val live = container.powerpal.live.value
+                val watts = link.pulsesSinceMillis?.let {
+                    PowerpalProtocol.averageWatts(container.powerpal.liveHistory.value, System.currentTimeMillis(), it, settings.pulsesPerKwh)
+                }
                 val text = when {
-                    link.status == LinkStatus.LIVE && live != null -> {
-                        val watts = PowerpalProtocol.liveWatts(live.intervalMs, System.currentTimeMillis() - live.receivedAtMillis, settings.pulsesPerKwh)
+                    link.status == LinkStatus.LIVE && watts != null -> {
                         val rate = settings.tariff.rateAt(LocalDateTime.now())
                         "${Format.power(watts)} · ${rate.name} · ≈ ${Format.money(watts / 1000 * rate.centsPerKwh)}/hr"
                     }

@@ -88,12 +88,60 @@ object PowerpalProtocol {
         if (intervalMs <= 0 || pulsesPerKwh <= 0) 0.0 else MILLIS_PER_KWH_PULSE_NUMERATOR / (pulsesPerKwh * intervalMs)
 
     /**
-     * Live power, allowing for time since the last report. If more time has passed than the last pulse
-     * interval without a newer report, the load can't be higher than one pulse over the elapsed time.
+     * How long the Powerpal can go between pulse reports while pulses keep coming. It doesn't report
+     * every pulse under heavy load: at 12 kW (a pulse every 300 ms) reports arrived 0.4–2.7 s apart.
+     */
+    private const val PULSE_REPORT_GAP_MS = 5_000L
+
+    /**
+     * Live power, allowing for time since the last report. If more time has passed than both the last
+     * pulse interval and [PULSE_REPORT_GAP_MS] without a newer report, the load can't be higher than one
+     * pulse over the elapsed time.
      */
     fun liveWatts(intervalMs: Long, ageMs: Long, pulsesPerKwh: Double): Double {
         val reported = wattsFromInterval(intervalMs, pulsesPerKwh)
-        return if (ageMs > intervalMs) min(reported, wattsFromInterval(ageMs, pulsesPerKwh)) else reported
+        return if (ageMs > maxOf(intervalMs, PULSE_REPORT_GAP_MS)) min(reported, wattsFromInterval(ageMs, pulsesPerKwh)) else reported
+    }
+
+    /** How far back [averageWatts] looks: long enough to settle pulse-to-pulse jitter, short enough to follow appliances. */
+    private const val AVERAGE_WINDOW_MS = 15_000L
+
+    /**
+     * Quiet for this long (and for twice the last pulse interval, so slow steady loads aren't cut off)
+     * means next to nothing is coming from the grid, e.g. solar or a battery is covering the house.
+     * At 1000 imp/kWh, a minute without a pulse is under 60 W.
+     */
+    private const val ZERO_AFTER_MS = 60_000L
+
+    /**
+     * Live power averaged over the [AVERAGE_WINDOW_MS] up to [nowMillis], or null while waiting for the
+     * first report. Each report's power is taken to have held since the report before it, which covers
+     * pulses the Powerpal didn't report, and the quiet since the last report counts at [liveWatts].
+     * Quiet only counts from [listeningSinceMillis], when pulse reports were subscribed to; after
+     * [ZERO_AFTER_MS] of it, power is 0.
+     */
+    fun averageWatts(reports: List<LivePower>, nowMillis: Long, listeningSinceMillis: Long, pulsesPerKwh: Double): Double? {
+        val last = reports.lastOrNull()
+        val quietSince = maxOf(last?.receivedAtMillis ?: listeningSinceMillis, listeningSinceMillis)
+        if (nowMillis - quietSince >= maxOf(ZERO_AFTER_MS, 2 * (last?.intervalMs ?: 0L))) return 0.0
+        if (last == null) return null
+        val end = maxOf(nowMillis, last.receivedAtMillis)
+        val start = end - AVERAGE_WINDOW_MS
+        var wattMillis = 0.0
+        var covered = 0L
+        fun add(from: Long, to: Long, watts: Double) {
+            val span = minOf(to, end) - maxOf(from, start)
+            if (span > 0) {
+                wattMillis += watts * span
+                covered += span
+            }
+        }
+        reports.forEachIndexed { i, report ->
+            val from = if (i > 0) reports[i - 1].receivedAtMillis else report.receivedAtMillis - report.intervalMs
+            add(from, report.receivedAtMillis, wattsFromInterval(report.intervalMs, pulsesPerKwh))
+        }
+        add(last.receivedAtMillis, end, liveWatts(last.intervalMs, end - quietSince, pulsesPerKwh))
+        return if (covered > 0) wattMillis / covered else null
     }
 
     /** Start of the minute containing [timestamp]. */
