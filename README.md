@@ -38,8 +38,9 @@ help bring it to every Powerpal owner. Homepage:
 
 **Live and history**
 
-- Live power from the Powerpal's meter pulses, with what it's costing per hour at your current
-  rate and a 15-minute trend.
+- Live power from the Powerpal's meter pulses, averaged over 15 seconds, with what it's costing
+  per hour at your current rate and a 15-minute trend. A minute without a pulse reads 0 W, for
+  when solar or a battery is covering the house.
 - Catches up on new readings whenever it connects, and in the background every couple of hours.
   Older history still in the Powerpal's memory (about 60 days) can be downloaded on request.
 - Optional import of your history from Powerpal's cloud, minute by minute, for as long as
@@ -192,6 +193,10 @@ its characteristics are `59DAxxxx-12F4-25A6-7D4F-55961DCE4205`. All integers are
 A session: connect → discover services → write the pairing code → write the time → set the
 batch size to 1 minute → read device information → subscribe to `0001` → read `0005` → request
 missing records through `0002` → subscribe to `0003` for live power.
+
+`0003` doesn't notify on every pulse under heavy load. At 12 kW on a 1000 imp/kWh meter, every
+report said 300 ms but reports arrived only every 0.4–2.7 s, so a late report doesn't mean the
+load has dropped.
 
 ## Contributing
 

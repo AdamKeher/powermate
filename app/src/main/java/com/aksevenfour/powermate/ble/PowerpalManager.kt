@@ -56,6 +56,8 @@ enum class LinkStatus {
 data class LinkState(
     val status: LinkStatus = LinkStatus.IDLE,
     val message: String? = null,
+    /** While live, when pulse reports were subscribed to; null if the Powerpal doesn't offer them. */
+    val pulsesSinceMillis: Long? = null,
 )
 
 /** A history download running alongside live readings. */
@@ -264,13 +266,14 @@ class PowerpalManager(
             launch { collectRecords(records, tracker) }
 
             if (mode == Mode.LIVE) {
-                if (client.has(SERVICE, PowerpalUuids.PULSE)) {
+                val hasPulses = client.has(SERVICE, PowerpalUuids.PULSE)
+                if (hasPulses) {
                     val pulses = client.subscribe(SERVICE, PowerpalUuids.PULSE)
                     launch { for (packet in pulses) onPulse(packet) }
                 } else {
                     log.add("No pulse characteristic (older firmware?); live power unavailable")
                 }
-                _link.value = LinkState(LinkStatus.LIVE)
+                _link.value = LinkState(LinkStatus.LIVE, pulsesSinceMillis = if (hasPulses) System.currentTimeMillis() else null)
             } else {
                 _link.value = LinkState(LinkStatus.SYNCING)
             }
@@ -534,8 +537,8 @@ class PowerpalManager(
         }
         fun interval(watts: Double) = (3.6e9 / (pulsesPerKwh * watts)).toLong().coerceAtLeast(1)
         try {
-            _link.value = LinkState(LinkStatus.LIVE)
             val start = System.currentTimeMillis()
+            _link.value = LinkState(LinkStatus.LIVE, pulsesSinceMillis = start)
             val history = mutableListOf<LivePower>()
             var t = start - LIVE_HISTORY_MS
             while (t < start) {

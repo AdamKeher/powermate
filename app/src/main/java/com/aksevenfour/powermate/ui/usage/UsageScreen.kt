@@ -143,8 +143,9 @@ data class UsageUiState(
     val tariff: Tariff = Tariff(),
     val pulsesPerKwh: Double = 1000.0,
     val canGoForward: Boolean = false,
-    val live: LivePower? = null,
+    val liveHistory: List<LivePower> = emptyList(),
     val connected: Boolean = false,
+    val pulsesSinceMillis: Long? = null,
 )
 
 class UsageViewModel(private val container: AppContainer) : ViewModel() {
@@ -173,7 +174,7 @@ class UsageViewModel(private val container: AppContainer) : ViewModel() {
             .map { (period, anchor, settings) -> Computed(container.usage.summary(period, anchor, settings), settings) }
 
     val state: StateFlow<UsageUiState> =
-        combine(summaries, selection, container.powerpal.live, container.powerpal.link) { computed, s, live, link ->
+        combine(summaries, selection, container.powerpal.liveHistory, container.powerpal.link) { computed, s, liveHistory, link ->
             // Period-dependent fields follow the summary, which can trail the selection briefly.
             val summary = computed.summary
             val period = summary.period
@@ -187,8 +188,9 @@ class UsageViewModel(private val container: AppContainer) : ViewModel() {
                 tariff = computed.settings.tariff,
                 pulsesPerKwh = computed.settings.pulsesPerKwh,
                 canGoForward = period.shift(summary.start, 1) <= LocalDate.now(),
-                live = live,
+                liveHistory = liveHistory,
                 connected = link.status == LinkStatus.LIVE,
+                pulsesSinceMillis = link.pulsesSinceMillis,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UsageUiState())
 
@@ -375,11 +377,11 @@ private fun LiveCentre(state: UsageUiState, summary: UsageSummary) {
             value = System.currentTimeMillis()
         }
     }
-    val live = state.live.takeIf { state.connected }
-    val watts = live?.let { PowerpalProtocol.liveWatts(it.intervalMs, nowMillis - it.receivedAtMillis, state.pulsesPerKwh) }
+    val watts = state.pulsesSinceMillis?.takeIf { state.connected }
+        ?.let { PowerpalProtocol.averageWatts(state.liveHistory, nowMillis, it, state.pulsesPerKwh) }
     val moodWatts = if (state.connected) watts ?: 0.0 else null
     Box(Modifier.fillMaxSize().clip(CircleShape).background(liveMoodBrush(moodWatts)), contentAlignment = Alignment.Center) {
-        MeterPulse(live?.intervalMs, Modifier.fillMaxSize())
+        MeterPulse(state.liveHistory.lastOrNull()?.intervalMs?.takeIf { watts != null && watts != 0.0 }, Modifier.fillMaxSize())
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             if (state.connected) {
                 Text(
