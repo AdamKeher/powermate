@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,6 +67,7 @@ import com.aksevenfour.powermate.ble.PowerpalManager
 import com.aksevenfour.powermate.ble.PowerpalProtocol
 import com.aksevenfour.powermate.ble.isBluetoothOn
 import com.aksevenfour.powermate.data.PairedDevice
+import com.aksevenfour.powermate.data.PairingCodeRecovery
 import com.aksevenfour.powermate.ui.components.PowerMateLogo
 import com.aksevenfour.powermate.ui.components.ScreenScaffold
 import com.aksevenfour.powermate.ui.components.appContainer
@@ -253,7 +256,12 @@ private fun PairScreen(address: String, name: String?, onBack: () -> Unit) {
     var pulsesText by rememberSaveable { mutableStateOf("1000") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var recovering by remember { mutableStateOf(false) }
+    var recoveryTitle by remember { mutableStateOf<String?>(null) }
+    var recoveryMessage by remember { mutableStateOf<String?>(null) }
 
+    // The device's cloud serial, taken from its Bluetooth name ("Powerpal 0004fe98" → "0004fe98").
+    val serial = remember(name) { PowerpalProtocol.serialFromName(name) }
     val pairingCode = PowerpalProtocol.parsePairingCode(code)
     val pulsesPerKwh = pulsesText.toDoubleOrNull()?.takeIf { it > 0 }
 
@@ -273,6 +281,43 @@ private fun PairScreen(address: String, name: String?, onBack: () -> Unit) {
                 enabled = !busy,
                 modifier = Modifier.fillMaxWidth(),
             )
+            // Mirrors the Powerpal app: the cloud sends the code to the owner who registered the device.
+            if (serial != null) {
+                TextButton(
+                    onClick = {
+                        scope.launch {
+                            recovering = true
+                            error = null
+                            when (val result = container.dataTools.recoverPairingCode(serial)) {
+                                is PairingCodeRecovery.Sent -> {
+                                    recoveryTitle = "Pairing code sent"
+                                    recoveryMessage = "If this Powerpal is registered, its code has been sent to the " +
+                                        "owner's registered email and mobile. Wait for it to arrive, then enter it above."
+                                }
+                                is PairingCodeRecovery.NotRegistered -> {
+                                    recoveryTitle = "Not registered"
+                                    recoveryMessage = "This Powerpal isn't registered with Powerpal, so there's no email " +
+                                        "or mobile to send the code to. Look for it on the card that came with the device, " +
+                                        "or contact whoever supplied it."
+                                }
+                                is PairingCodeRecovery.Failed -> {
+                                    recoveryTitle = "Couldn't recover the code"
+                                    recoveryMessage = "${result.message}. Check your connection, or contact support@powerpal.net."
+                                }
+                            }
+                            recovering = false
+                        }
+                    },
+                    enabled = !busy && !recovering,
+                ) {
+                    if (recovering) {
+                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Text("  Asking Powerpal…")
+                    } else {
+                        Text("I can't find my pairing code")
+                    }
+                }
+            }
             OutlinedTextField(
                 value = pulsesText,
                 onValueChange = { pulsesText = it.filter { c -> c.isDigit() || c == '.' }.take(7) },
@@ -333,6 +378,15 @@ private fun PairScreen(address: String, name: String?, onBack: () -> Unit) {
                     Text("Connect")
                 }
             }
+        }
+
+        if (recoveryMessage != null) {
+            AlertDialog(
+                onDismissRequest = { recoveryMessage = null },
+                confirmButton = { TextButton(onClick = { recoveryMessage = null }) { Text("OK") } },
+                title = { recoveryTitle?.let { Text(it) } },
+                text = { recoveryMessage?.let { Text(it) } },
+            )
         }
     }
 }

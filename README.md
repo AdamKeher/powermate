@@ -91,8 +91,8 @@ Price and plan features currently cover Victoria only. Everything else works any
 ## Requirements
 
 - An Android phone running Android 8.0 or newer, with Bluetooth LE.
-- A Powerpal monitor and its 6-digit pairing code (on the card that came with it, or in the
-  original app).
+- A Powerpal monitor and its 6-digit pairing code (on the card that came with it, in the
+  original app, or recovered in-app if the device is registered with Powerpal).
 - Your meter's rate in impulses per kWh, printed on the meter (usually 1000).
 
 ## Join the beta
@@ -115,7 +115,9 @@ a Powerpal to count as a tester. Problems or ideas? [Open an issue](https://gith
 
 1. Close or uninstall the original Powerpal app. A Powerpal talks to only one app at a time.
 2. Install PowerMate: [join the beta](#join-the-beta), or [build it yourself](#building).
-3. Open PowerMate, tap **Find my Powerpal**, pick your device and enter its pairing code.
+3. Open PowerMate, tap **Find my Powerpal**, pick your device and enter its pairing code. Lost the
+   code? If the Powerpal is registered with Powerpal, tap **I can't find my pairing code** to have
+   it sent to the owner's registered email and mobile.
 4. Enter your electricity plan under **Settings → Electricity plan → Edit plan**, or find it
    with **Compare plans for my usage** and tap **Use as my plan in PowerMate**.
 5. Optionally, import your older history under **Settings → Import history from Powerpal's
@@ -132,6 +134,7 @@ connects to these services, only for the features that need them:
 | Amber Electric (`api.amber.com.au`) | Renewables share; your prices if you add a token | Your token, only if you add one |
 | AER Energy Made Easy (`cdr.energymadeeasy.gov.au`) | Plan comparison | Nothing personal: plans are filtered by postcode on the phone |
 | Powerpal (`readings.powerpal.net`) | History import, only when you run it | Your Powerpal's device ID and key |
+| Powerpal (`devices.powerpal.net`) | Recovering a lost pairing code, only when you tap it | The device's serial; the code is sent to the owner's registered email and mobile, never to the app |
 
 Permissions: Bluetooth (to find and connect to the Powerpal; on Android 11 and older, Android
 also requires location access to scan), notifications, and a connected-device foreground
@@ -197,6 +200,24 @@ missing records through `0002` → subscribe to `0003` for live power.
 `0003` doesn't notify on every pulse under heavy load. At 12 kW on a 1000 imp/kWh meter, every
 report said 300 ms but reports arrived only every 0.4–2.7 s, so a late report doesn't mean the
 load has dropped.
+
+## Pairing code recovery
+
+A Powerpal that's been registered with Powerpal (via the original app's "About your home") can
+have its pairing code resent, so a lost code doesn't mean a factory reset. This mirrors the
+original app's "I can't find my pairing code" link.
+
+| Request | Response |
+|---|---|
+| `POST https://devices.powerpal.net/api/v1/energy_bridges/<serial>/pairing_code_recovery` | `200` the code was sent to the owner's registered email and mobile · `404` the device isn't registered · other: failed |
+
+The `<serial>` is the 8-character hex device ID, the suffix of the Bluetooth name (`Powerpal
+0004fe98` → `0004fe98`). The request takes no body and no authentication, but the server requires
+a `Content-Length` header (send `0`). The code is only ever sent to the contact details the owner
+registered, never returned in the response, so the serial alone can't be used to read someone
+else's code — it can only prompt Powerpal to resend it to that owner. These details come from the
+official app (`net.powerpal.PowerPal`); they aren't part of Powerpal's documented API, so they may
+change.
 
 ## Contributing
 
